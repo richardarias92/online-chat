@@ -1,0 +1,42 @@
+import socket
+import threading
+
+# Configuración del cliente (COnexion ficticia)
+host = '192.168.101.4'
+port = 55555
+
+# Ingresar el nombre de usuario
+nickname = input('Ingrese su nombre de usuario: ')
+
+# Conectar al servidor
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect((host, port))
+
+# Función para recibir mensajes del servidor
+def receive():
+    while True:
+        try:
+            # Recibir mensaje del servidor y mostrarlo en la pantalla
+            message = client.recv(1024).decode('ascii')
+            if message == 'NICK':
+                client.send(nickname.encode('ascii'))
+            else:
+                print(message)
+        except:
+            # Si hay algún error, cerrar la conexión y salir del programa
+            print('Ha ocurrido un error!')
+            client.close()
+            break
+
+# Función para enviar mensajes al servidor
+def write():
+    while True:
+        message = f'{nickname}: {input("")}'
+        client.send(message.encode('ascii'))
+
+# Iniciar hilos para recibir y enviar mensajes
+receive_thread = threading.Thread(target=receive)
+receive_thread.start()
+
+write_thread = threading.Thread(target=write)
+write_thread.start()
